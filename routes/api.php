@@ -4,6 +4,9 @@ use App\Http\Controllers\AdminApartmentController;
 use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ApartmentController;
+use App\Http\Controllers\BookingController;
+use App\Http\Controllers\OwnerBookingController;
+use App\Http\Controllers\UserController;
 use App\Models\Apartment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -54,6 +57,25 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
 
     // الرفض
     Route::put('/admin/apartment/{id}/reject', [AdminApartmentController::class, 'rejectedapartment']);
+
+    //الحجوزات
+    //قسم المستأجر
+    //عرض جميع حجوزات المستخدم
+    Route::get('user/{id}/bookings',[UserController::class,'getUserBookings']);
+    //إضافة حجز مع عدم التضارب
+    Route::post('/bookings',[BookingController::class,'addBooking']);
+    //إلغاء حجز
+    Route::put('/bookings/{id}/cancel',[BookingController::class,'cancelBooking']);
+    //التعديل على حجز
+    Route::put('/bookings/{id}/update',[BookingController::class,'updateBooking']);
+
+    //قسم المؤجر
+    //عرض الحجوزات قيد الانتظار
+    Route::get('owner/bookings/pending', [UserController::class, 'pendingBookings']);
+    //قبول الحجز
+    Route::post('owner/bookings/{id}/approve', [UserController::class, 'approve']);
+    //رفض الحجز
+    Route::post('owner/bookings/{id}/reject', [UserController::class, 'reject']);
 
 });
 

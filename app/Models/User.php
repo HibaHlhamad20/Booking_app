@@ -49,6 +49,10 @@ public function getIdImageUrlAttribute()
     return asset('storage/' . $this->id_image);
 }
 
+    public function bookings(){
+        return $this->hasMany(Booking::class);
+    }
+
     // protected function casts(): array
     // {
     //     return [
@@ -56,4 +60,5 @@ public function getIdImageUrlAttribute()
     //         'password' => 'hashed',
     //     ];
     // }
+
 }

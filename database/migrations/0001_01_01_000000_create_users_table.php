@@ -19,9 +19,9 @@ return new class extends Migration
            
             $table->string('first_name');
             $table->string('last_name');
-            $table->string('user_image');
+            $table->string('user_image')->nullable();
             $table->date('birth_date');
-            $table->string('id_image');
+            $table->string('id_image')->nullable();
            // $table->boolean('profile_completed')->default(false);
             $table->string('password');
             

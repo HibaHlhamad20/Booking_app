@@ -33,4 +33,14 @@ class Apartment extends Model
     public function mainImage(){
         return $this->hasOne(Apartment_Image::class)->where('is_main',true);
     }
+    public function bookings() {
+        return $this->hasMany(Booking::class);
+    }
+    public function ratings() {
+    return $this->hasMany(Rating::class);
+    }
+    public function averageRating() {
+    return $this->ratings()->avg('rating');
+    }
+
 }

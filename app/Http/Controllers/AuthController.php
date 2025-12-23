@@ -7,21 +7,34 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 // use Illuminate\Types\Relations\Role;
-
+use Illuminate\Support\Facades\Validator;
 class AuthController extends Controller
 {
     public function register(Request $request){
-     
-        $request->validate([
+
+//        $request->validate([
+//
+//       ] );
+        $validator = Validator::make($request->all(), [
             'phone'=>'required|string|unique:users,phone',
-            'role'=>'required|in:owner,renter',
+            'role'=>'required|in:owner,tenant',
             'password'=>'required|string|min:8',
-             'first_name'=>'required|string',
+            'first_name'=>'required|string',
             'last_name'=>'required|string',
             'birth_date'=>'required|date',
             'user_image'=>'required|image',
             'id_image'=>'required|image'
-       ] );
+        ]);
+
+        if ($validator->fails()) {
+            $error = $validator->errors()->first();
+
+            return response()->json([
+                'message'=>'error',
+                'cause'=>$error,
+            ]);
+        }
+
         $userImagepath=$request->file('user_image')->store('user_images','public');
         $idImagepath=$request->file('id_image')->store('id_images','public');
 
@@ -63,7 +76,7 @@ class AuthController extends Controller
             'message'=>'logged in successfully',
             'token'=>$token,
             'user'=>$user
-           
+
         ]);
     }
       public function adminLogin(Request $request)
@@ -92,7 +105,7 @@ class AuthController extends Controller
             'user'    => $admin
         ]);
     }
-  
+
    // tokens->delete()= its mean that the user logged out form all devices
     public function logout(Request $request){
         $request->user()->currentAccessToken()->delete();
