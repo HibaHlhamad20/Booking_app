@@ -19,6 +19,11 @@ class Booking extends Model
    public function rating() {
     return $this->hasOne(Rating::class);
    }
+ 
+    public function favorateByUser(){
+        return $this->belongsToMany(User::class,'favorates');
+    }
+
 
 
 }

@@ -42,5 +42,8 @@ class Apartment extends Model
     public function averageRating() {
     return $this->ratings()->avg('rating');
     }
+    public function favorateByUser(){
+        return $this->belongsToMany(User::class,'favorates');
+    }
 
 }

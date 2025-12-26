@@ -21,10 +21,10 @@ class StoreBookingRequest extends FormRequest
     public function rules(): array
     {
         return [
-        'user_id'=>'required|exists:users,id',
         'apartment_id'=>'required|exists:apartments,id',
         'from'=>'required|date',
-        'to'=>'required|date|after:from'
+        'to'=>'required|date|after:from',
+        'guests'=>'required|integer'
         ];
     }
 
@@ -51,7 +51,7 @@ class StoreBookingRequest extends FormRequest
         if ($conflictingBooking) {
             $validator->errors()->add(
                 'from',
-                "This apartment is already booked from {$conflictingBooking->from} to {$conflictingBooking->to}. Please select a different date."
+                "This apartment is booked from {$conflictingBooking->from} to {$conflictingBooking->to}. Please select a different date."
             );
         }
     });

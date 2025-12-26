@@ -53,6 +53,14 @@ public function getIdImageUrlAttribute()
         return $this->hasMany(Booking::class);
     }
 
+    public function ratings(){
+        return $this->hasMany(Rating::class);
+    }
+
+    public function favoriteApartments(){
+        return $this->belongsToMany(Apartment::class, 'favorites');
+    }
+
     // protected function casts(): array
     // {
     //     return [

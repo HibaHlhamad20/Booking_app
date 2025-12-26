@@ -4,27 +4,36 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreBookingRequest;
 use App\Http\Requests\UpdateBookingRequest;
+use App\Models\Apartment;
 use App\Models\Booking;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class BookingController extends Controller
 {
     public function addBooking (StoreBookingRequest $request)
     {
-        $data = $request->validated();
-        $data['user_id'] = $request->user()->id;
-        $data['status'] = 'pending';
-        $booking = Booking::create($data);       
+        $validatedData = $request->validated();
+        $validatedData['user_id'] = Auth::user()->id;
+        $validatedData['status'] = 'pending';
+        $from = Carbon::parse($validatedData['from']);
+        $to = Carbon::parse($validatedData['to']);
+        $days = $from->diffInDays($to)+1;
+        $apartment = Apartment::findOrFail($request->apartment_id);
+        $pricePerDay = $apartment->price_per_day;
+        $validatedData['total_price'] = $days * $pricePerDay;
+        $booking = Booking::create($validatedData);  
         return response()->json($booking, 200);
     }
 
-    public function cancelBooking (Request $request,$id)
+    public function cancelBooking ($id)
     {
-        $user = $request->user();
+        $user_id=Auth::user()->id;
         $booking = Booking::findOrFail($id);
 
-        if ($booking->user_id !== $user->id) {
+        if ($booking->user_id !== $user_id) {
             return response()->json([
                 'message' => 'Unauthorized'
             ], 403);
@@ -46,12 +55,12 @@ class BookingController extends Controller
         return response()->json($booking, 200);
     }
 
-    public function updateBooking (UpdateBookingRequest $request, $id)
+    public function updateBooking (UpdateBookingRequest $request,$id)
     {
-        $user = $request->user();
+        $user_id=Auth::user()->id;
         $booking = Booking::findOrFail($id);
 
-        if ($booking->user_id !== $user->id) {
+        if ($booking->user_id !== $user_id) {
             return response()->json([
                 'message' => 'Unauthorized'
             ], 403);
@@ -73,6 +82,5 @@ class BookingController extends Controller
         $booking->update($request->validated());
         return response()->json($booking, 200);
     }
-
 
 }

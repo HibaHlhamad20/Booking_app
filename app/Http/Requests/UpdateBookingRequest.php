@@ -23,8 +23,9 @@ class UpdateBookingRequest extends FormRequest
     public function rules(): array
     {
         return [
-        'from'=>'required|date',
-        'to'=>'required|date|after:from'
+        'from'=>'nullable|date',
+        'to'=>'nullable|date|after:from',
+        'guests'=>'nullable|integer'
         ];
     }
 

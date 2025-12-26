@@ -23,6 +23,7 @@ return new class extends Migration
            // $table->string('owner_phone');
             $table->integer('area');
             $table->enum('status',['pending','approved','rejected'])->default('pending');
+            $table->decimal('average_rate', 3, 2)->default(0);
             $table->timestamps();
         });
     }

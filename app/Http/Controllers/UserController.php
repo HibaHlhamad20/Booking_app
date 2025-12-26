@@ -2,22 +2,24 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Apartment;
 use App\Models\Booking;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
     protected $table = 'users';
-    public function getUserBookings ($id)
+    public function getUserBookings ()
     {
-        $bookings=User::findOrFail($id)->bookings;
+        $bookings= Auth::user()->bookings;
         return response()->json($bookings, 200);
     }
 
-     public function pendingBookings(Request $request)
+     public function pendingBookings()
     {
-        $owner = $request->user();
+        $owner = Auth::user();
 
         if ($owner->role !== 'owner') {
             return response()->json(['message' => 'Unauthorized'], 403);
@@ -33,12 +35,11 @@ class UserController extends Controller
         return response()->json($bookings);
     }
 
-    public function approveBooking(Request $request, $id)
+    public function approveBooking($booking_id)
     {
-        $owner = $request->user();
-        $booking = Booking::findOrFail($id);
+        $booking = Booking::findOrFail($booking_id);
 
-        if ($booking->apartment->owner_id !== $owner->id) {
+        if ($booking->apartment->owner_id !==  Auth::user()->id) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
@@ -55,12 +56,11 @@ class UserController extends Controller
         ]);
     }
 
-    public function rejectBooking(Request $request, $id)
+    public function rejectBooking($booking_id)
     {
-        $owner = $request->user();
-        $booking = Booking::findOrFail($id);
+        $booking = Booking::findOrFail($booking_id);
 
-        if ($booking->apartment->owner_id !== $owner->id) {
+        if ($booking->apartment->owner_id !==  Auth::user()->id) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
@@ -77,5 +77,21 @@ class UserController extends Controller
         ]);
     }   
 
+    public function addToFavorite ($apartment_id) {
+        Apartment::findOrFail($apartment_id);
+        Auth::user()->favoriteApartments()->syncWithoutDetaching($apartment_id);
+        return response()->json(['message' => 'Apartment added to favorite'], 200);
+    }
+
+    public function removeFromFavorite ($apartment_id) {
+        Apartment::findOrFail($apartment_id);
+        Auth::user()->favoriteApartments()->detach($apartment_id);
+        return response()->json(['message' => 'Apartment removed from favorite'], 200);
+    }
+
+    public function getFavoriteApartments () {
+        $favoriteApartments = Auth::user()->favoriteApartments()->with('mainImage')->get();
+        return response()->json($favoriteApartments, 200);
+    }
 
 }
