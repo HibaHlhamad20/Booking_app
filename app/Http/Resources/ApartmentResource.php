@@ -17,7 +17,7 @@ class ApartmentResource extends JsonResource
             'rooms'          => $this->rooms,
             'area'           => $this->area,
             'status'         => $this->status,
-
+            'average_rate'   => $this->average_rate,
             'governorate_id' => $this->governorate_id,
             'city_id'        => $this->city_id,
 
