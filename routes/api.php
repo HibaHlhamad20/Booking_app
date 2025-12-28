@@ -5,6 +5,7 @@ use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ApartmentController;
 use App\Http\Controllers\BookingController;
+use App\Http\Controllers\MessageController;
 use App\Http\Controllers\OwnerBookingController;
 use App\Http\Controllers\RatingController;
 use App\Http\Controllers\UserController;
@@ -28,7 +29,9 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::get('/user', function (Request $request) {
     return $request->user();
 });
-    Route::delete('/logout',[AuthController::class,'logout']);    
+    Route::delete('/logout',[AuthController::class,'logout']); 
+    //إرسال رسالة
+    Route::post('message',[MessageController::class,'storeMessage']);  
 
     //قسم المؤجر
     //عرض الحجوزات قيد الانتظار

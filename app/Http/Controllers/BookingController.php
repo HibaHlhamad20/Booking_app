@@ -78,6 +78,12 @@ class BookingController extends Controller
             ], 400);
         }
 
+        if ($booking->new_to <= $booking->new_from) {
+            return response()->json([
+                'message' => 'Please enter a valid date'
+            ], 400);
+        }
+
         if ($request->new_from !==null && $request->new_to ==null) {
            $booking->new_from=$request->new_from;
            $booking->new_from = Carbon::parse($booking->new_from);
