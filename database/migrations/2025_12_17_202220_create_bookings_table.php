@@ -20,7 +20,13 @@ return new class extends Migration
             $table->integer('guests');
             $table->enum('status', ['pending', 'approved', 'rejected', 'cancelled'])
             ->default('pending');
-            $table->float('total_price');
+            $table->decimal('total_price', 10, 2);
+            $table->enum('update_status', ['pending', 'approved', 'rejected'])
+            ->nullable();
+            $table->date('new_from')->nullable();
+            $table->date('new_to')->nullable();
+            $table->integer('new_guests')->nullable();
+            $table->decimal('new_total_price', 10, 2)->nullable();
             $table->timestamps();
         });
     }

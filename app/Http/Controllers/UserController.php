@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Apartment;
 use App\Models\Booking;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -69,6 +70,94 @@ class UserController extends Controller
         }
 
         $booking->status = 'rejected';
+        $booking->save();
+
+        return response()->json([
+            'message' => 'Booking rejected successfully',
+            'booking' => $booking
+        ]);
+    }   
+
+    public function pendingUpdatedBookings()
+    {
+        $owner = Auth::user();
+
+        if ($owner->role !== 'owner') {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $bookings = Booking::where('update_status', 'pending')
+            ->whereHas('apartment', function ($q) use ($owner) {
+                $q->where('owner_id', $owner->id);
+            })
+            ->with(['user', 'apartment'])
+            ->get();
+
+        return response()->json($bookings);
+    }
+
+    public function approveUpdatedBooking($booking_id)
+    {
+        $booking = Booking::findOrFail($booking_id);
+
+        if ($booking->apartment->owner_id !==  Auth::user()->id) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        if ($booking->update_status !== 'pending') {
+            return response()->json(['message' => 'Booking already processed'], 400);
+        }
+
+        if ($booking->new_from !==null && $booking->new_to ==null) {
+           $booking->from=$booking->new_from;
+           $booking->new_from = Carbon::parse($booking->new_from);
+           $booking->total_price = $booking->new_total_price;
+        }
+
+        if ($booking->new_to !==null && $booking->new_from ==null) {
+           $booking->to=$booking->new_to;
+           $booking->new_to = Carbon::parse($booking->new_to);
+           $booking->total_price = $booking->new_total_price;
+        }
+
+        if ($booking->new_to !==null && $booking->new_from !==null) {
+           $booking->from=$booking->new_from;
+           $booking->to=$booking->new_to;
+           $booking->new_from = Carbon::parse($booking->new_from);
+           $booking->new_to = Carbon::parse($booking->new_to);
+           $booking->total_price = $booking->new_total_price;
+        }
+
+        if ($booking->new_guests !==null) {
+           $booking->guests=$booking->new_guests;
+        }
+
+        $booking->update_status = 'approved';
+        $booking->new_from = null;
+        $booking->new_to = null;
+        $booking->new_guests =null;
+        $booking->new_total_price=null;
+        $booking->save();
+
+        return response()->json([
+            'message' => 'Booking modification approved successfully',
+            'booking' => $booking
+        ]);
+    }
+
+    public function rejectUpdatedBooking($booking_id)
+    {
+        $booking = Booking::findOrFail($booking_id);
+
+        if ($booking->apartment->owner_id !==  Auth::user()->id) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        if ($booking->update_status !== 'pending') {
+            return response()->json(['message' => 'Booking already processed'], 400);
+        }
+
+        $booking->update_status = 'rejected';
         $booking->save();
 
         return response()->json([

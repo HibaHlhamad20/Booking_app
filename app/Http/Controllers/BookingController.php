@@ -55,7 +55,7 @@ class BookingController extends Controller
         return response()->json($booking, 200);
     }
 
-    public function updateBooking (UpdateBookingRequest $request,$id)
+    public function updateBooking (Request $request,$id)
     {
         $user_id=Auth::user()->id;
         $booking = Booking::findOrFail($id);
@@ -78,8 +78,38 @@ class BookingController extends Controller
             ], 400);
         }
 
+        if ($request->new_from !==null && $request->new_to ==null) {
+           $booking->new_from=$request->new_from;
+           $booking->new_from = Carbon::parse($booking->new_from);
+           $days = $booking->new_from->diffInDays($booking->to)+1;
+           $pricePerDay = $booking->apartment->price_per_day;
+           $booking->new_total_price = $days * $pricePerDay;
+        }
 
-        $booking->update($request->validated());
+        if ($request->new_to !==null && $request->new_from ==null) {
+           $booking->new_to=$request->new_to;
+           $booking->new_to = Carbon::parse($booking->new_to);
+           $days = $booking->from->diffInDays($booking->new_to)+1;
+           $pricePerDay = $booking->apartment->price_per_day;
+           $booking->new_total_price = $days * $pricePerDay;
+        }
+
+        if ($request->new_to !==null && $request->new_from !==null) {
+           $booking->new_from=$request->new_from;
+           $booking->new_to=$request->new_to;
+           $booking->new_from = Carbon::parse($booking->new_from);
+           $booking->new_to = Carbon::parse($booking->new_to);
+           $days = $booking->new_from->diffInDays($booking->new_to)+1;
+           $pricePerDay = $booking->apartment->price_per_day;
+           $booking->new_total_price = $days * $pricePerDay;
+        }
+
+        if ($request->new_guests !==null) {
+           $booking->new_guests=$request->new_guests;
+        }
+
+        $booking->update_status='pending';
+        $booking->save();
         return response()->json($booking, 200);
     }
 

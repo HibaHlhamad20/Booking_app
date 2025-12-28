@@ -21,6 +21,18 @@ class ApartmentResource extends JsonResource
             'governorate_id' => $this->governorate_id,
             'city_id'        => $this->city_id,
 
+                 // إضافة اسم المحافظة والمدينة
+            'governorate' => $this->governorate ? [
+                'id'   => $this->governorate->id,
+                'name' => $this->governorate->name,
+            ] : null,
+
+            'city' => $this->city ? [
+                'id'   => $this->city->id,
+                'name' => $this->city->name,
+            ] : null,
+
+            
             'owner' => [
                 'id'         => $this->owner->id,
                 'first_name' => $this->owner->first_name,
@@ -39,5 +51,6 @@ class ApartmentResource extends JsonResource
             }),
         ];
     }
-    }
+
+}
 

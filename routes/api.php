@@ -28,7 +28,21 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::get('/user', function (Request $request) {
     return $request->user();
 });
-    Route::delete('/logout',[AuthController::class,'logout']);
+    Route::delete('/logout',[AuthController::class,'logout']);    
+
+    //قسم المؤجر
+    //عرض الحجوزات قيد الانتظار
+    Route::get('owner/bookings/pending', [UserController::class, 'pendingBookings']);
+    //قبول الحجز
+    Route::post('owner/bookings/{id}/approve', [UserController::class, 'approveBooking']);
+    //رفض الحجز
+    Route::post('owner/bookings/{id}/reject', [UserController::class, 'rejectBooking']);  
+    //عرض طلبات تعديل الحجوزات قيد الانتظار
+    Route::get('owner/bookings/pendingUpdates', [UserController::class, 'pendingUpdatedBookings']);
+    //قبول التعديل
+    Route::post('owner/bookings/{id}/approveUpdate', [UserController::class, 'approveUpdatedBooking']);
+    //رفض التعديل
+    Route::post('owner/bookings/{id}/rejectUpdate', [UserController::class, 'rejectUpdatedBooking']);    
     //اضافة شقة
     Route::post('/apartment',[ApartmentController::class,'store']);
     //update
@@ -38,32 +52,25 @@ Route::middleware('auth:sanctum')->group(function(){
     //ownerapartment
     Route::get('/my_apartment',[ApartmentController::class,'myApartment']);
 
-        //الحجوزات
-        //قسم المستأجر
-        //عرض جميع حجوزات المستخدم
-        Route::get('/bookings',[UserController::class,'getUserBookings']);
-        //إضافة حجز مع عدم التضارب
-        Route::post('/bookings',[BookingController::class,'addBooking']);
-        //إلغاء حجز
-        Route::put('/bookings/{id}/cancel',[BookingController::class,'cancelBooking']);
-        //التعديل على حجز
-        Route::put('/bookings/{id}/update',[BookingController::class,'updateBooking']);
-        //تقييم شقة
-        Route::post('rating/{id}',[RatingController::class,'addRating']);
-        //إضافة شقة للمفضلة
-        Route::post('apartment/{id}/favorite',[UserController::class,'addToFavorite']);
-        //حذف شقة من المفضلة
-        Route::delete('apartment/{id}/favorite',[UserController::class,'removeFromFavorite']);
-        //عرض المفضلة
-        Route::get('apartments/favorite',[UserController::class,'getFavoriteApartments']);
+    //قسم المستأجر
+    //عرض جميع حجوزات المستخدم
+    Route::get('/bookings',[UserController::class,'getUserBookings']);
+    //إضافة حجز مع عدم التضارب
+    Route::post('/bookings',[BookingController::class,'addBooking']);
+    //إلغاء حجز
+    Route::put('/bookings/{id}/cancel',[BookingController::class,'cancelBooking']);
+    //التعديل على حجز
+    Route::put('/bookings/{id}/update',[BookingController::class,'updateBooking']);
+    //تقييم شقة
+    Route::post('rating/{id}',[RatingController::class,'addRating']);
+    //إضافة شقة للمفضلة
+    Route::post('apartment/{id}/favorite',[UserController::class,'addToFavorite']);
+    //حذف شقة من المفضلة
+    Route::delete('apartment/{id}/favorite',[UserController::class,'removeFromFavorite']);
+    //عرض المفضلة
+    Route::get('apartments/favorite',[UserController::class,'getFavoriteApartments']);
 
-        //قسم المؤجر
-        //عرض الحجوزات قيد الانتظار
-        Route::get('owner/bookings/pending', [UserController::class, 'pendingBookings']);
-        //قبول الحجز
-        Route::post('owner/bookings/{id}/approve', [UserController::class, 'approveBooking']);
-        //رفض الحجز
-        Route::post('owner/bookings/{id}/reject', [UserController::class, 'rejectBooking']);
+
 });
 
 
