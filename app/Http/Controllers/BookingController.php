@@ -66,9 +66,15 @@ class BookingController extends Controller
             ], 403);
         }
 
-        if ($booking->status !== 'pending') {
+        if ($booking->status == 'rejected') {
             return response()->json([
-                'message' => 'Only pending bookings can be updated'
+                'message' => 'Rejected bookings can not be updated'
+            ], 400);
+        }
+
+        if ($booking->status == 'cancelled') {
+            return response()->json([
+                'message' => 'Cancelled bookings can not be updated'
             ], 400);
         }
 
@@ -78,15 +84,10 @@ class BookingController extends Controller
             ], 400);
         }
 
-        if ($booking->new_to <= $booking->new_from) {
-            return response()->json([
-                'message' => 'Please enter a valid date'
-            ], 400);
-        }
-
         if ($request->new_from !==null && $request->new_to ==null) {
            $booking->new_from=$request->new_from;
            $booking->new_from = Carbon::parse($booking->new_from);
+           $booking->to = Carbon::parse($booking->to);
            $days = $booking->new_from->diffInDays($booking->to)+1;
            $pricePerDay = $booking->apartment->price_per_day;
            $booking->new_total_price = $days * $pricePerDay;
@@ -95,6 +96,7 @@ class BookingController extends Controller
         if ($request->new_to !==null && $request->new_from ==null) {
            $booking->new_to=$request->new_to;
            $booking->new_to = Carbon::parse($booking->new_to);
+           $booking->from = Carbon::parse($booking->from);
            $days = $booking->from->diffInDays($booking->new_to)+1;
            $pricePerDay = $booking->apartment->price_per_day;
            $booking->new_total_price = $days * $pricePerDay;

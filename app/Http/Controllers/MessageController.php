@@ -25,4 +25,21 @@ class MessageController extends Controller
 
         return response()->json($message, 200);
     }
+
+ public function getChatMessages($receiver_id)
+{
+    $messages = Message::where(function ($query) use ($receiver_id) {
+        $query->where('sender_id', Auth::user()->id)
+              ->where('receiver_id', $receiver_id);
+    })
+    ->orWhere(function ($query) use ($receiver_id) {
+        $query->where('sender_id', $receiver_id)
+              ->where('receiver_id', Auth::user()->id);
+    })
+    ->orderBy('created_at')
+    ->get();
+
+    return response()->json($messages);
+}
+
 }

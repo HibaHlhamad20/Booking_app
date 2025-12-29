@@ -22,8 +22,8 @@ class AuthController extends Controller
             'first_name'=>'required|string',
             'last_name'=>'required|string',
             'birth_date'=>'required|date',
-            'user_image'=>'required|image',
-            'id_image'=>'required|image'
+            'user_image'=>'nullable|image',
+            'id_image'=>'nullable|image'
         ]);
 
         if ($validator->fails()) {
@@ -35,8 +35,8 @@ class AuthController extends Controller
             ]);
         }
 
-        $userImagepath=$request->file('user_image')->store('user_images','public');
-        $idImagepath=$request->file('id_image')->store('id_images','public');
+        // $userImagepath=$request->file('user_image')->store('user_images','public');
+        // $idImagepath=$request->file('id_image')->store('id_images','public');
 
        $user=User::create([
         'phone'=>$request->phone,
@@ -46,8 +46,8 @@ class AuthController extends Controller
         'first_name'=>$request->first_name,
         'last_name'=>$request->last_name,
         'birth_date'=>$request->birth_date,
-        'user_image'=>$userImagepath,
-        'id_image'=>$idImagepath,
+        // 'user_image'=>$userImagepath,
+        // 'id_image'=>$idImagepath,
        ]);
        return response()->json([
        'message'=>'Registered successfully . Waiting admin approval',

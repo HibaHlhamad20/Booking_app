@@ -133,6 +133,7 @@ class UserController extends Controller
         }
 
         $booking->update_status = 'approved';
+        $booking->status = 'approved';
         $booking->new_from = null;
         $booking->new_to = null;
         $booking->new_guests =null;

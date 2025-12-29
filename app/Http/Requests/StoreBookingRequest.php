@@ -21,10 +21,12 @@ class StoreBookingRequest extends FormRequest
     public function rules(): array
     {
         return [
-        'apartment_id'=>'required|exists:apartments,id',
-        'from'=>'required|date',
-        'to'=>'required|date|after:from',
-        'guests'=>'required|integer'
+        'apartment_id' => 'required|exists:apartments,id',
+        'from' => 'required_without:new_from|date',
+        'to' => 'required_without:new_to|date|after:from',
+        'guests' => 'required|integer',
+        'new_from' => 'nullable|date',
+        'new_to' => 'nullable|date|after:from'
         ];
     }
 

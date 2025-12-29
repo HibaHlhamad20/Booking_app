@@ -32,6 +32,8 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::delete('/logout',[AuthController::class,'logout']); 
     //إرسال رسالة
     Route::post('message',[MessageController::class,'storeMessage']);  
+    //جلب كل رسائل المحادثة
+    Route::get('message/{receiver_id}',[MessageController::class,'getChatMessages']); 
 
     //قسم المؤجر
     //عرض الحجوزات قيد الانتظار
