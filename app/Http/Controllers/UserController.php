@@ -12,9 +12,42 @@ use Illuminate\Support\Facades\Auth;
 class UserController extends Controller
 {
     protected $table = 'users';
+    // جلب حجوزات المستخدم مع بيانات الشقة
     public function getUserBookings ()
     {
-        $bookings= Auth::user()->bookings;
+        $bookings= Auth::user()->bookings
+         ->with(['apartment' => function ($query) {
+                $query->with(['mainImage', 'governorate', 'city']);
+            }])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // تحويل البيانات لتضمين معلومات الشقة
+        $bookings = $bookings->map(function ($booking) {
+            $apartment = $booking->apartment;
+            return [
+                'id' => $booking->id,
+                'apartment_id' => $booking->apartment_id,
+                'user_id' => $booking->user_id,
+                'from' => $booking->from,
+                'to' => $booking->to,
+                'status' => $booking->status,
+                'created_at' => $booking->created_at,
+                'updated_at' => $booking->updated_at,
+                'apartment' => $apartment ? [
+                    'id' => $apartment->id,
+                    'title' => $apartment->title,
+                    'description' => $apartment->description,
+                    'price_per_day' => $apartment->price_per_day,
+                    'rooms' => $apartment->rooms,
+                    'area' => $apartment->area,
+                    'main_image' => $apartment->mainImage ? $apartment->mainImage->url : null,
+                    'governorate' => $apartment->governorate ? $apartment->governorate->name : null,
+                    'city' => $apartment->city ? $apartment->city->name : null,
+                ] : null,
+            ];
+        });
+
         return response()->json($bookings, 200);
     }
 

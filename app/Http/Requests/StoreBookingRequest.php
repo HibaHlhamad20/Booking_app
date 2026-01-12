@@ -22,11 +22,11 @@ class StoreBookingRequest extends FormRequest
     {
         return [
         'apartment_id' => 'required|exists:apartments,id',
-        'from' => 'required_without:new_from|date',
+        'from' => 'required_without:new_from|date|after_or_equal:today',
         'to' => 'required_without:new_to|date|after:from',
         'guests' => 'required|integer',
-        'new_from' => 'nullable|date',
-        'new_to' => 'nullable|date|after:from'
+        'new_from' => 'nullable|date|after_or_equal:today',
+        'new_to' => 'nullable|date|after:new_from'
         ];
     }
 
@@ -42,6 +42,25 @@ class StoreBookingRequest extends FormRequest
             return;
         }
 
+        // التحقق من عدم وجود حجز سابق لنفس المستخدم على نفس الشقة في نفس الفترة
+        $userConflict = Booking::where('apartment_id', $apartmentId)
+            ->whereIn('status', ['pending', 'approved'])
+            ->where(function ($query) use ($from, $to) {
+                $query->whereBetween('from', [$from, $to])
+                    ->orWhereBetween('to', [$from, $to])
+                    ->orWhere(function ($q) use ($from, $to) {
+                        $q->where('from', '<=', $from)
+                            ->where('to', '>=', $to);
+                    });
+            })
+            ->exists();
+
+        if ($userConflict) {
+            return response()->json([
+                'message' => 'لديك حجز سابق على هذه الشقة في نفس الفترة'
+            ], 400);
+        }
+        
         $conflictingBooking = Booking::where('apartment_id', $apartmentId)
             ->whereIn('status', ['approved'])
             ->where(function ($query) use ($from, $to) {

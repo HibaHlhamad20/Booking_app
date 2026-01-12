@@ -3,10 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreBookingRequest;
-use App\Http\Requests\UpdateBookingRequest;
 use App\Models\Apartment;
 use App\Models\Booking;
-use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -39,19 +37,20 @@ class BookingController extends Controller
             ], 403);
         }
 
-        if ($booking->status === 'rejected') {
+        if (in_array($booking->status, ['rejected', 'cancelled'])) {
             return response()->json([
-                'message' => 'Rejected booking cannot be cancelled'
+                'message' => 'هذا الحجز لا يمكن إلغاؤه'
             ], 400);
         }
 
         if (now()->toDateString() >= $booking->from) {
             return response()->json([
-                'message' => 'Cannot cancel booking after it has started'
+                'message' => 'لا يمكن إلغاء الحجز بعد بدء موعده'
             ], 400);
         }
         $booking->status = 'cancelled';
         $booking->save();
+        
         return response()->json($booking, 200);
     }
 
@@ -119,6 +118,18 @@ class BookingController extends Controller
         $booking->update_status='pending';
         $booking->save();
         return response()->json($booking, 200);
+    }
+
+    // جلب التواريخ المحجوزة لشقة معينة
+    public function getBookedDates($apartmentId)
+    {
+        $bookings = Booking::where('apartment_id', $apartmentId)
+            ->where('status', 'approved')
+            ->where('to', '>=', now()->toDateString())
+            ->select('from', 'to')
+            ->get();
+
+        return response()->json($bookings);
     }
 
 }
