@@ -52,7 +52,7 @@ class MessageController extends Controller
         ->unique()
         ->values();
 
-    $chats = User::whereIn('id', $otherUsersIds)->pluck('name');
+    $chats = User::whereIn('id', $otherUsersIds)->pluck('first_name');
 
     return response()->json($chats);
 }
