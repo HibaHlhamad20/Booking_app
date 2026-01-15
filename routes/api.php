@@ -34,6 +34,8 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::post('message',[MessageController::class,'storeMessage']);  
     //جلب كل رسائل المحادثة
     Route::get('message/{receiver_id}',[MessageController::class,'getChatMessages']); 
+    //جلب كل المحادثات (أسماء المرسَل إليهم)
+    Route::get('message',[MessageController::class,'getChats']);    
 
     //قسم المؤجر
     //عرض الحجوزات قيد الانتظار

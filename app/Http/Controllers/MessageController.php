@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Events\MessageSent;
 use App\Models\Message;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
@@ -40,6 +41,20 @@ class MessageController extends Controller
     ->get();
 
     return response()->json($messages);
+}
+    public function getChats()
+{
+    $userId = Auth::id();
+
+    $otherUsersIds = Message::where('sender_id', $userId)
+        ->pluck('receiver_id')
+        ->merge(Message::where('receiver_id', $userId)->pluck('sender_id'))
+        ->unique()
+        ->values();
+
+    $chats = User::whereIn('id', $otherUsersIds)->pluck('name');
+
+    return response()->json($chats);
 }
 
 }
